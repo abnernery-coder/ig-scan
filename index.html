@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Maturidade de Indicação Geográfica (IG)</title>
+    <!-- Carrega o Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fonte Inter (padrão do Tailwind) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* Estilos para a barra de progresso */
+        .progress-bar-inner {
+            transition: width 0.3s ease-in-out;
+        }
+        /* Ocultar steps por padrão */
+        .step {
+            display: none;
+        }
+        .step-active {
+            display: block;
+        }
+        /* Efeito de hover e estado desabilitado nos botões */
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-green {
+            background-color: #22c55e; /* green-500 */
+        }
+        .btn-green:hover:not(:disabled) {
+            background-color: #16a34a; /* green-600 */
+        }
+        .btn-red {
+            background-color: #ef4444; /* red-500 */
+        }
+        .btn-red:hover:not(:disabled) {
+            background-color: #dc2626; /* red-600 */
+        }
+        .btn-blue {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .btn-blue:hover:not(:disabled) {
+            background-color: #2563eb; /* blue-600 */
+        }
+         .btn-gray {
+            background-color: #6b7280; /* gray-500 */
+        }
+        .btn-gray:hover:not(:disabled) {
+            background-color: #4b5563; /* gray-600 */
+        }
+        /* Ajuste fino para perguntas longas */
+        #question-text {
+             min-height: 50px; /* Garante altura mínima */
+        }
+        /* Estilo para o rodapé adicionado */
+        .info-footer {
+            margin-top: 2rem; /* Adiciona espaço acima do rodapé */
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb; /* gray-200 */
+            font-size: 0.75rem; /* text-xs */
+            color: #6b7280; /* gray-500 */
+            text-align: center;
+            line-height: 1.25;
+        }
+         .info-footer p {
+            margin-bottom: 0.25rem;
+         }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8 p-6 bg-white rounded-lg shadow-lg">
+            <h1 class="text-3xl font-bold text-gray-800">Calculadora de Maturidade de Indicação Geográfica (IG)</h1>
+            <p class="text-lg text-gray-600 mt-2">Baseada no guia FAO "Unindo pessoas, territórios e produtos"</p>
+             <!-- Informação da Metodologia Adicionada -->
+            <p class="text-sm text-gray-500 mt-1">Metodologia: Ciclo Virtuoso da Qualidade Associado à Origem e Indicações Geográficas Sustentáveis (FAO, 2010)</p>
+        </header>
+
+        <!-- Container Principal da Aplicação -->
+        <main class="bg-white rounded-lg shadow-2xl p-6 sm:p-10 min-h-[400px]">
+
+            <!-- Etapa 1: Introdução -->
+            <div id="step-intro" class="step step-active text-center">
+                <h2 class="text-2xl font-semibold mb-4">Bem-vindo(a)!</h2>
+                <p class="text-gray-700 leading-relaxed mb-6">
+                    Esta ferramenta auxilia na avaliação do estágio de desenvolvimento de um projeto de Indicação Geográfica (IG), seguindo as fases do "ciclo virtuoso" proposto pela FAO.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-8">
+                    A avaliação ajudará a identificar o progresso em cada fase (Identificação, Qualificação, Remuneração, Reprodução) e a destacar áreas que necessitam de mais atenção para garantir uma IG sustentável.
+                </p>
+                <button onclick="showStep('step-setup')" class="btn btn-blue text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg">
+                    Iniciar Avaliação
+                </button>
+
+                 <!-- Rodapé com Autoria e Licença Adicionado -->
+                <footer class="info-footer">
+                    <p>Autoria: Abner Nery, 2025</p>
+                    <p>Contato: <a href="mailto:abner@kubopi.org" class="text-blue-600 hover:underline">abner@kubopi.org</a> | Tel: (71) 98173-1537</p>
+                    <p>Este software é uma obra intelectual open-source.</p>
+                </footer>
+            </div>
+
+            <!-- Etapa 2: Configuração -->
+            <div id="step-setup" class="step">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Configuração da Avaliação</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label for="ig-name" class="block text-sm font-medium text-gray-700 mb-2">Nome da Indicação Geográfica (ou produto candidato)</label>
+                        <input type="text" id="ig-name" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Café das Montanhas, Queijo do Serro">
+                    </div>
+                     <div>
+                        <label for="organization-name" class="block text-sm font-medium text-gray-700 mb-2">Organização/Grupo Avaliado</label>
+                        <input type="text" id="organization-name" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Associação de Produtores XYZ">
+                    </div>
+                </div>
+                <div class="text-center mt-10">
+                     <button onclick="showStep('step-intro')" class="btn btn-gray text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg mr-4">
+                        Voltar
+                    </button>
+                    <button onclick="startAssessment()" class="btn btn-blue text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg">
+                        Começar Questionário
+                    </button>
+                </div>
+            </div>
+
+            <!-- Etapa 3: Avaliação (Questionário) -->
+            <div id="step-assessment" class="step">
+                <!-- Barra de Progresso -->
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-medium text-blue-700" id="progress-label">Fase 1 de 4</span>
+                        <span class="text-sm font-medium text-blue-700" id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="progress-bar" class="bg-blue-600 h-4 rounded-full progress-bar-inner" style="width: 0%"></div>
+                    </div>
+                     <p class="text-xs text-center text-gray-500 mt-1" id="question-progress-within-phase">Pergunta 1 de X</p>
+                </div>
+
+                <!-- Card da Pergunta -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-inner">
+                    <div class="mb-4">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-sm font-bold px-4 py-1 rounded-full" id="question-phase">Fase X</span>
+                        <span class="inline-block bg-gray-200 text-gray-800 text-sm font-bold px-4 py-1 rounded-full" id="question-chapter">Capítulo X.Y</span>
+                    </div>
+                    <p class="text-lg text-gray-900 font-medium" id="question-text">
+                        Carregando pergunta...
+                    </p>
+                </div>
+
+                <!-- Botões de Resposta e Navegação -->
+                <div class="flex justify-between items-center mt-10">
+                     <button id="back-button" onclick="goBack()" class="btn btn-gray text-white font-bold py-4 px-10 rounded-lg shadow-md hover:shadow-lg text-lg" disabled>
+                        Voltar
+                    </button>
+                    <div class="flex space-x-4">
+                        <button onclick="answerQuestion('nao')" class="btn btn-red text-white font-bold py-4 px-10 rounded-lg shadow-md hover:shadow-lg text-lg">
+                            Não / Incerto
+                        </button>
+                        <button onclick="answerQuestion('sim')" class="btn btn-green text-white font-bold py-4 px-10 rounded-lg shadow-md hover:shadow-lg text-lg">
+                            Sim / Em Andamento
+                        </button>
+                    </div>
+                </div>
+                 <div class="text-center mt-4">
+                     <button onclick="skipQuestion()" class="text-sm text-gray-500 hover:text-gray-700 underline">Pular Pergunta (N/A)</button>
+                </div>
+            </div>
+
+            <!-- Etapa 4: Relatório -->
+            <div id="step-report" class="step">
+                <h2 class="text-2xl font-semibold mb-2 text-center">Relatório de Maturidade da IG</h2>
+                <p class="text-center text-lg text-gray-600 mb-4" id="report-ig-name">IG: Café das Montanhas</p>
+                <p class="text-center text-sm text-gray-500 mb-8" id="report-organization-name">Organização: Associação XYZ</p>
+
+                <!-- Resumo do Resultado -->
+                 <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg text-center shadow mb-10">
+                    <div class="text-sm font-medium text-blue-700 uppercase">Estágio Geral de Maturidade</div>
+                    <div class="text-4xl font-bold text-blue-800 mt-2" id="report-overall-status">Calculando...</div>
+                    <p class="text-xs text-gray-600 mt-2" id="report-overall-comment">O estágio geral reflete a fase menos avançada no processo.</p>
+                </div>
+
+                <!-- Tabela de Resultados Detalhados por Fase -->
+                <h3 class="text-xl font-semibold mb-4">Progresso por Fase do Ciclo Virtuoso</h3>
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fase</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">% Conclusão (Sim)</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status da Fase</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Linhas serão inseridas via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                 <p class="text-xs text-gray-500 mt-4 text-center">O % de conclusão indica a proporção de respostas 'Sim / Em Andamento' para as perguntas aplicáveis em cada fase.</p>
+
+                <div class="text-center mt-10">
+                    <button onclick="restartAssessment()" class="btn btn-blue text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg">
+                        Fazer Nova Avaliação
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- 1. CONSTANTES E DADOS ---
+
+        // Nomes das Fases (baseado no guia FAO)
+        const PHASE_NAMES = {
+            'ID': '1 - Identificação',
+            'QL': '2 - Qualificação',
+            'RM': '3 - Remuneração',
+            'RP': '4 - Reprodução'
+        };
+        const PHASE_KEYS = Object.keys(PHASE_NAMES);
+
+        // GI_CRITERIA: Perguntas adaptadas das seções "Para practicar" do guia FAO.
+        // Agrupadas pelas 4 fases principais.
+        // Termo "pliego de condiciones" substituído por "Relatório e/ou Documento Descritivo"
+        // Termo "FODA" substituído por "FOFA"
+        let GI_CRITERIA = { // Usar let para permitir modificação
+            'ID': [ // Fase 1: Identificação (Baseado nos Capítulos 1.1 a 1.4)
+                { chapter: '1.1', text: 'As características específicas do produto (diferentes de outros similares) foram identificadas?' },
+                { chapter: '1.1', text: 'Os atributos de qualidade preferidos pelos consumidores foram identificados?' },
+                { chapter: '1.1', text: 'A ligação da qualidade específica com os recursos naturais locais (solo, clima, etc.) foi estabelecida?' },
+                { chapter: '1.1', text: 'O saber-fazer, conhecimentos técnicos e práticas específicas locais foram documentados?' },
+                { chapter: '1.1', text: 'A zona geográfica potencial de produção foi preliminarmente definida?' },
+                { chapter: '1.1', text: 'A história ou lendas associadas ao produto foram pesquisadas?' },
+                { chapter: '1.1', text: 'Os principais atores locais envolvidos na cadeia de produção foram identificados?' },
+                { chapter: '1.1', text: 'Outros atores locais (não produtores) interessados na valorização foram identificados?' },
+                { chapter: '1.1', text: 'Atores externos (governo, ONGs, universidades) com interesse no produto foram identificados?' },
+                { chapter: '1.2', text: 'Os objetivos principais e resultados esperados da promoção da IG foram definidos?' },
+                { chapter: '1.2', text: 'O potencial da IG para contribuir para o desenvolvimento sustentável (econômico, social, ambiental) foi avaliado?' },
+                { chapter: '1.2', text: 'Os recursos locais específicos necessários para o produto (que podem estar ameaçados) foram identificados?' },
+                { chapter: '1.3', text: 'O nome (ou nomes) geográfico(s) associado(s) ao produto é(são) conhecido(s) pelos consumidores?' },
+                { chapter: '1.3', text: 'Existem outros signos (símbolos, formas) que identificam o produto e sua origem?' },
+                { chapter: '1.3', text: 'A reputação do nome geográfico é positiva?' },
+                { chapter: '1.3', text: 'Existem problemas devido à heterogeneidade dos produtos que usam o mesmo nome?' },
+                { chapter: '1.3', text: 'Há necessidade percebida de definir regras comuns para o uso do nome?' },
+                { chapter: '1.3', text: 'Existem problemas de uso indevido ou abusivo do nome ou designação?' },
+                { chapter: '1.3', text: 'Existem imitações do produto no mercado?' },
+                { chapter: '1.3', text: 'Foram avaliados os benefícios potenciais de uma proteção jurídica do nome?' },
+                { chapter: '1.4', text: 'Existe um grupo ou cooperativa de produtores já organizado(a) para este produto?' },
+                { chapter: '1.4', text: 'Há experiências anteriores de iniciativas conjuntas entre produtores/processadores?' },
+                { chapter: '1.4', text: 'Existe(m) líder(es) ou representante(s) reconhecido(s) entre os interessados?' },
+                { chapter: '1.4', text: 'Foram identificados os principais interessados e assegurada a sua representatividade (incluindo atores desfavorecidos)?' },
+                { chapter: '1.4', text: 'Foram estabelecidos contatos com a "rede de apoio" externa (pesquisa, governo, ONGs)?' },
+            ],
+            'QL': [ // Fase 2: Qualificação (Baseado nos Capítulos 2.1 a 2.6)
+                { chapter: '2.1', text: 'Foi iniciado o processo de elaboração de um Relatório e/ou Documento Descritivo (ou documento similar)?' },
+                { chapter: '2.1', text: 'Os requisitos essenciais que conferem originalidade e tipicidade ao produto foram identificados para inclusão no Relatório e/ou Documento Descritivo?' },
+                { chapter: '2.1', text: 'O Relatório e/ou Documento Descritivo inclui requisitos mensuráveis/verificáveis?' },
+                { chapter: '2.1', text: 'Foi considerado um processo participativo e de mediação para definir as regras?' },
+                { chapter: '2.2', text: 'O Relatório descreve as características físicas, químicas, microbiológicas e/ou organolépticas específicas?' },
+                { chapter: '2.2', text: 'O Relatório especifica as matérias-primas e ingredientes permitidos/proibidos?' },
+                { chapter: '2.2', text: 'O método de obtenção do produto (produção, processamento, etc.) está detalhado no Relatório?' },
+                { chapter: '2.2', text: 'Foi feito um inventário da diversidade de características e práticas existentes antes de definir as regras?' },
+                { chapter: '2.2', text: 'Foram consideradas subcategorias (ex: artesanal vs industrial, maturação diferente) no Relatório, se relevante?' },
+                { chapter: '2.3', text: 'A zona geográfica de produção foi delimitada com base no vínculo produto-território (fatores físicos, humanos, históricos)?' },
+                { chapter: '2.3', text: 'Foram consideradas zonas distintas para matéria-prima e processamento, se aplicável?' },
+                { chapter: '2.3', text: 'A reputação histórica e a notoriedade atual foram usadas para justificar a delimitação?' },
+                { chapter: '2.3', text: 'A escolha do nome da IG reflete adequadamente o território e a reputação?' },
+                { chapter: '2.3', text: 'Foram usados critérios e métodos claros (mapas, entrevistas, dados históricos, etc.) para definir os limites?' },
+                { chapter: '2.3', text: 'O vínculo entre a qualidade/reputação e a origem geográfica está demonstrado no Relatório e/ou Documento Descritivo?' },
+                { chapter: '2.4', text: 'Foi estabelecido ou está em desenvolvimento um sistema de garantia (controle) para verificar a conformidade com o Relatório e/ou Documento Descritivo?' },
+                { chapter: '2.4', text: 'O sistema de garantia inclui mecanismos de rastreabilidade do produto desde a origem?' },
+                { chapter: '2.4', text: 'Foi definido um plano de controle especificando pontos críticos, métodos, frequência e responsabilidades?' },
+                { chapter: '2.4', text: 'Foram definidas sanções em caso de não conformidade?' },
+                { chapter: '2.4', text: 'A organização de produtores desempenha um papel ativo no sistema de controle (ex: controle interno)?' },
+                { chapter: '2.4', text: 'Foram consideradas opções para gerenciar os custos do sistema de garantia (ex: certificação coletiva, apoio público)?' },
+                { chapter: '2.5', text: 'O Relatório e/ou Documento Descritivo inclui regras que contribuem para a sustentabilidade ambiental (ex: conservação da biodiversidade, uso de recursos)?' },
+                { chapter: '2.5', text: 'O Relatório inclui regras que contribuem para a sustentabilidade social (ex: preservação cultural, saber-fazer, equidade)?' },
+                { chapter: '2.5', text: 'Foram avaliados os potenciais impactos (positivos e negativos) das regras do Relatório e/ou Documento Descritivo nos aspectos socioambientais?' },
+                { chapter: '2.6', text: 'Foram identificados potenciais conflitos na definição das regras (ex: requisitos muito estritos/flexíveis, exclusão de atores)?' },
+                { chapter: '2.6', text: 'Existem mecanismos (ex: mediação, regras democráticas na organização) para gerenciar e resolver conflitos?' },
+            ],
+            'RM': [ // Fase 3: Remuneração (Baseado nos Capítulos 3.1 a 3.3)
+                { chapter: '3.1', text: 'Existe uma organização (associação, conselho, etc.) formalmente constituída para gerenciar a IG?' },
+                { chapter: '3.1', text: 'A organização representa adequadamente os diferentes atores da cadeia de valor (produtores, processadores, etc.)?' },
+                { chapter: '3.1', text: 'As funções e atividades da organização estão claramente definidas (gestão de regras, controle, marketing, representação)?' },
+                { chapter: '3.1', text: 'A estrutura da organização (estatutos, regras de decisão, financiamento) é transparente e democrática?' },
+                { chapter: '3.1', text: 'Os produtores compreendem as vantagens e desvantagens de aderir à organização e usar a IG?' },
+                { chapter: '3.2', text: 'Foi elaborado um plano de marketing estratégico (coletivo e/ou individual)?' },
+                { chapter: '3.2', text: 'Foi realizada uma análise de mercado (consumidores, concorrência, oportunidades)?' },
+                { chapter: '3.2', text: 'Foi realizado um análise FOFA (Forças, Oportunidades, Fraquezas, Ameaças) para a IG?' }, // CORRIGIDO AQUI
+                { chapter: '3.2', text: 'O mercado foi segmentado para identificar os grupos de consumidores-alvo?' },
+                { chapter: '3.2', text: 'A estratégia de focalização (quais segmentos atacar) foi definida?' },
+                { chapter: '3.2', text: 'A estratégia de posicionamento (como diferenciar a IG na mente do consumidor) foi definida?' },
+                { chapter: '3.2', text: 'Foi desenvolvido um logotipo ou identidade visual para a IG?' },
+                { chapter: '3.3', text: 'Foram definidas as características do produto a serem comunicadas (atributos, marca, embalagem, etiquetagem)?' },
+                { chapter: '3.3', text: 'A estratégia de preços foi definida, considerando custos, concorrência e disposição a pagar dos consumidores?' },
+                { chapter: '3.3', text: 'Foram selecionados os canais de distribuição mais adequados (mercado local, exportação, varejo especializado, etc.)?' },
+                { chapter: '3.3', text: 'Foi definida uma estratégia de comunicação (quem comunicar, para quem, que mensagem, como)?' },
+                { chapter: '3.3', text: 'A organização IG coordena ou realiza atividades de comunicação coletiva (feiras, publicidade, relações públicas)?' },
+            ],
+            'RP': [ // Fase 4: Reprodução (Baseado nos Capítulos 4.1 a 4.3)
+                { chapter: '4.1', text: 'Existe um sistema para avaliar o impacto da IG na sustentabilidade (econômica, social, ambiental)?' },
+                { chapter: '4.1', text: 'Foram identificados potenciais efeitos negativos da IG (ex: exclusão de atores, sobre-exploração de recursos)?' },
+                { chapter: '4.1', text: 'A distribuição dos benefícios da IG ao longo da cadeia de valor é considerada equitativa?' },
+                { chapter: '4.1', text: 'A gestão coletiva da IG promove a participação e o empoderamento dos atores locais?' },
+                { chapter: '4.1', text: 'A IG contribui ativamente para a conservação dos recursos naturais e da biodiversidade local?' },
+                { chapter: '4.1', text: 'A IG contribui para a preservação do patrimônio cultural e das tradições locais?' },
+                { chapter: '4.2', text: 'Existe um mecanismo estabelecido para revisar e adaptar as regras do Relatório e/ou Documento Descritivo ao longo do tempo?' },
+                { chapter: '4.2', text: 'Foram consideradas adaptações devido a mudanças no mercado (demanda, concorrência)?' },
+                { chapter: '4.2', text: 'Foram consideradas adaptações devido a novas informações científicas ou inovações técnicas (que não alterem a especificidade)?' },
+                { chapter: '4.2', text: 'Foram consideradas adaptações para reforçar a sustentabilidade do sistema?' },
+                { chapter: '4.2', text: 'Foram consideradas adaptações devido a mudanças ambientais (ex: mudança climática)?' },
+                { chapter: '4.3', text: 'A IG está sendo utilizada como um elemento central em estratégias de desenvolvimento territorial mais amplas?' },
+                { chapter: '4.3', text: 'Existem sinergias ativas entre a IG e outras atividades locais (ex: turismo rural, gastronomia, outros produtos locais)?' },
+                { chapter: '4.3', text: 'A reputação da IG atrai visitantes ou consumidores para o território?' },
+                { chapter: '4.3', text: 'Existe coordenação entre os atores da IG e os de outros setores (ex: turismo) para ações conjuntas?' },
+                { chapter: '4.3', text: 'A comunidade local em geral participa ou se beneficia das estratégias territoriais ligadas à IG?' },
+            ]
+        };
+
+        // Função para substituir o texto "pliego..." (executada uma vez no início)
+        function replacePliegoText() {
+            const oldTextRegex = /pliego de condiciones/gi; // g = global, i = insensitive
+            const newText = "Relatório e/ou Documento Descritivo";
+            for (const phaseKey in GI_CRITERIA) {
+                GI_CRITERIA[phaseKey].forEach(question => {
+                    question.text = question.text.replace(oldTextRegex, newText);
+                });
+            }
+        }
+        replacePliegoText(); // Chama a função para fazer as substituições
+
+
+        // --- 2. ESTADO DA APLICAÇÃO ---
+
+        let currentStep = 'step-intro';
+        let igName = '';
+        let organizationName = '';
+        let phaseResults = {}; // Armazena { yes: X, total: Y, skipped: Z } para cada fase
+        let history = []; // Armazena o estado anterior [{phaseIndex, questionIndex, answer ('sim'/'nao'/'skipped')}]
+        let currentPhaseIndex = 0; // Índice para PHASE_KEYS (0=ID, 1=QL, ...)
+        let currentQuestionIndex = 0; // Índice da pergunta dentro da fase
+        let questionsForCurrentPhase = []; // Cache das perguntas da fase atual
+
+        // --- 3. LÓGICA DA APLICAÇÃO ---
+
+        /**
+         * Controla a exibição das etapas (divs)
+         */
+        function showStep(stepId) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('step-active');
+            });
+            document.getElementById(stepId).classList.add('step-active');
+            currentStep = stepId;
+            window.scrollTo(0, 0); // Rola para o topo
+        }
+
+        /**
+         * Inicia a avaliação após a configuração
+         */
+        function startAssessment() {
+            igName = document.getElementById('ig-name').value || 'IG Sem Nome';
+            organizationName = document.getElementById('organization-name').value || 'Organização Não Especificada';
+
+            // Inicializa o estado da avaliação
+            phaseResults = {};
+            PHASE_KEYS.forEach(key => { phaseResults[key] = { yes: 0, total: 0, skipped: 0 }; });
+            history = []; // Limpa o histórico
+            currentPhaseIndex = 0;
+            currentQuestionIndex = 0;
+
+            showStep('step-assessment');
+            loadAndDisplayQuestion();
+            updateBackButtonState(); // Garante que o botão Voltar comece desabilitado
+        }
+
+        /**
+         * Carrega e exibe a pergunta atual com base no estado
+         */
+        function loadAndDisplayQuestion() {
+            // Se todas as fases foram avaliadas, mostra o relatório
+            if (currentPhaseIndex >= PHASE_KEYS.length) {
+                showReport();
+                return;
+            }
+
+            const phaseCode = PHASE_KEYS[currentPhaseIndex];
+            questionsForCurrentPhase = GI_CRITERIA[phaseCode] || [];
+
+            // Se já respondemos todas as perguntas desta FASE...
+            if (currentQuestionIndex >= questionsForCurrentPhase.length) {
+                // Passa para a próxima FASE
+                currentPhaseIndex++;
+                currentQuestionIndex = 0;
+
+                // Verifica se ainda estamos dentro dos limites das fases
+                 if (currentPhaseIndex < PHASE_KEYS.length) {
+                     loadAndDisplayQuestion(); // Chama recursivamente para a nova fase
+                 } else {
+                     showReport(); // Acabaram as fases, mostra o relatório
+                 }
+                return;
+            }
+
+            // Se há perguntas a fazer, exibe a pergunta atual
+            const q = questionsForCurrentPhase[currentQuestionIndex];
+
+            // Atualiza UI
+            document.getElementById('question-phase').textContent = PHASE_NAMES[phaseCode];
+            document.getElementById('question-chapter').textContent = `Capítulo ${q.chapter}`;
+            document.getElementById('question-text').textContent = q.text;
+
+            // Atualiza barra de progresso e contador de perguntas
+            updateProgressBar();
+            document.getElementById('question-progress-within-phase').textContent = `Pergunta ${currentQuestionIndex + 1} de ${questionsForCurrentPhase.length}`;
+            updateBackButtonState(); // Atualiza estado do botão Voltar
+        }
+
+       /**
+         * Processa a resposta do usuário (Sim/Não/Pular) e avança
+         */
+        function processAnswer(answer) {
+             // Guarda o estado atual ANTES de modificar
+            history.push({
+                phaseIndex: currentPhaseIndex,
+                questionIndex: currentQuestionIndex,
+                answer: answer // 'sim', 'nao', ou 'skipped'
+            });
+
+            const phaseCode = PHASE_KEYS[currentPhaseIndex];
+
+            if (answer !== 'skipped') {
+                // Incrementa o total de perguntas respondidas para esta fase
+                phaseResults[phaseCode].total++;
+                if (answer === 'sim') {
+                    // Resposta positiva, incrementa 'yes'
+                    phaseResults[phaseCode].yes++;
+                }
+                 // Se 'nao', apenas incrementa o total (já feito acima)
+            } else {
+                 phaseResults[phaseCode].skipped++;
+            }
+
+            // Avança para a próxima pergunta na MESMA fase
+            currentQuestionIndex++;
+            loadAndDisplayQuestion();
+        }
+
+        /** Wrapper para resposta 'sim' ou 'nao' */
+        function answerQuestion(answer) {
+             processAnswer(answer);
+        }
+
+         /** Wrapper para 'pular' */
+        function skipQuestion() {
+            processAnswer('skipped');
+        }
+
+
+        /**
+         * Volta para a pergunta anterior
+         */
+         function goBack() {
+             if (history.length === 0) return; // Não há para onde voltar
+
+             // Pega o último estado registrado
+             const lastState = history.pop();
+             const previousPhaseCode = PHASE_KEYS[lastState.phaseIndex];
+
+             // Desfaz a contagem da resposta anterior
+            if (lastState.answer !== 'skipped') {
+                 phaseResults[previousPhaseCode].total--;
+                 if (lastState.answer === 'sim') {
+                     phaseResults[previousPhaseCode].yes--;
+                 }
+            } else {
+                 phaseResults[previousPhaseCode].skipped--;
+            }
+
+
+             // Restaura o estado para a pergunta anterior
+             currentPhaseIndex = lastState.phaseIndex;
+             currentQuestionIndex = lastState.questionIndex;
+
+             // Recarrega a pergunta anterior
+             loadAndDisplayQuestion();
+              updateBackButtonState(); // Atualiza estado do botão Voltar
+         }
+
+        /**
+         * Habilita/Desabilita o botão Voltar
+         */
+        function updateBackButtonState() {
+            const backButton = document.getElementById('back-button');
+            if (backButton) {
+                backButton.disabled = history.length === 0;
+            }
+        }
+
+
+        /**
+         * Calcula e exibe o relatório final
+         */
+        function showReport() {
+            showStep('step-report');
+
+            document.getElementById('report-ig-name').textContent = `IG: ${igName}`;
+            document.getElementById('report-organization-name').textContent = `Organização: ${organizationName}`;
+
+            // Preenche a tabela de resultados detalhados
+            const tableBody = document.getElementById('report-table-body');
+            tableBody.innerHTML = ''; // Limpa a tabela
+            let overallStatus = "Inicial";
+            let minPercentage = 101; // Inicia com valor > 100
+            let phaseWithMinPercentage = '';
+            let allPercentages = [];
+            let totalAnsweredQuestions = 0;
+
+
+            PHASE_KEYS.forEach((key, index) => {
+                const results = phaseResults[key];
+                // Considera apenas perguntas respondidas com 'sim' ou 'não' para o cálculo percentual
+                const applicableQuestions = results.total;
+                totalAnsweredQuestions += applicableQuestions; // Soma para o total geral
+
+                const percentage = applicableQuestions > 0 ? Math.round((results.yes / applicableQuestions) * 100) : 0;
+                allPercentages.push(percentage);
+
+                let statusText = "Inicial";
+                let statusColor = "text-gray-600";
+                let bgColor = "bg-white";
+
+                if (percentage >= 80) {
+                    statusText = "Avançado";
+                    statusColor = "text-green-600";
+                    bgColor = "bg-green-50";
+                } else if (percentage >= 50) {
+                    statusText = "Intermediário";
+                    statusColor = "text-yellow-600";
+                    bgColor = "bg-yellow-50";
+                } else if (applicableQuestions > 0) { // Só marca como baixo se houver perguntas respondidas
+                     statusText = "Baixo";
+                     statusColor = "text-red-600";
+                     bgColor = "bg-red-50";
+                } else {
+                     statusText = "Não Avaliado"; // Se não respondeu nenhuma pergunta aplicável
+                     statusColor = "text-gray-500";
+                     bgColor = "bg-gray-50";
+                }
+
+                 // Guarda a menor porcentagem significativa e o nome da fase correspondente
+                if (applicableQuestions > 0 && percentage < minPercentage) {
+                   minPercentage = percentage;
+                   phaseWithMinPercentage = PHASE_NAMES[key];
+                }
+
+
+                const row = `
+                    <tr class="${bgColor}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${PHASE_NAMES[key]}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-lg font-bold ${statusColor}">${percentage}%</span>
+                            <span class="text-xs text-gray-500"> (${results.yes}/${applicableQuestions})</span>
+                             ${results.skipped > 0 ? `<span class="text-xs text-gray-400 ml-1">(${results.skipped} puladas)</span>` : ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor === 'text-green-600' ? 'bg-green-100 text-green-800' : (statusColor === 'text-red-600' ? 'bg-red-100 text-red-800' : (statusColor === 'text-yellow-600' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'))}">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+
+            // Determina o status geral baseado na menor porcentagem (desconsiderando fases não avaliadas)
+            let overallComment = "O estágio geral reflete a fase menos avançada no processo.";
+             if (totalAnsweredQuestions === 0) {
+                 overallStatus = "Não Avaliado";
+                 overallComment = "Nenhuma pergunta aplicável foi respondida para determinar o estágio.";
+             } else if (minPercentage >= 80) {
+                overallStatus = "Avançado";
+                 overallComment = `Todas as fases avaliadas mostram um progresso significativo (≥80%). Foco na manutenção e melhoria contínua (${phaseWithMinPercentage} como referência).`;
+            } else if (minPercentage >= 50) {
+                 overallStatus = "Intermediário";
+                 overallComment = `Há bom progresso, mas a fase "${phaseWithMinPercentage}" (e possivelmente outras) requer mais desenvolvimento (menor %: ${minPercentage}%).`;
+            } else { // minPercentage < 50 e minPercentage != 101 (significa que houve avaliação)
+                 overallStatus = "Inicial";
+                 overallComment = `Fases importantes como "${phaseWithMinPercentage}" estão no início ou precisam de atenção significativa (menor %: ${minPercentage}%).`;
+            }
+
+
+            document.getElementById('report-overall-status').textContent = overallStatus;
+            document.getElementById('report-overall-comment').textContent = overallComment;
+
+        }
+
+        /**
+         * Reinicia a avaliação, voltando para a tela de introdução
+         */
+        function restartAssessment() {
+            // Opcional: Limpar campos do setup
+            // document.getElementById('ig-name').value = '';
+            // document.getElementById('organization-name').value = '';
+            showStep('step-intro');
+        }
+
+        /**
+         * Atualiza a barra de progresso geral
+         */
+        function updateProgressBar() {
+            const totalQuestionsInAllPhases = PHASE_KEYS.reduce((sum, key) => sum + GI_CRITERIA[key].length, 0);
+             const currentGlobalQuestionNumber = history.length; // Número de perguntas já respondidas/puladas
+             const percent = totalQuestionsInAllPhases > 0 ? Math.round((currentGlobalQuestionNumber / totalQuestionsInAllPhases) * 100) : 0;
+
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-percent').textContent = `${percent}%`;
+
+            if (currentPhaseIndex < PHASE_KEYS.length) {
+                document.getElementById('progress-label').textContent = `Progresso Geral: ${PHASE_NAMES[PHASE_KEYS[currentPhaseIndex]]}`;
+            } else {
+                 document.getElementById('progress-label').textContent = `Progresso Geral: Concluído`;
+            }
+        }
+
+        // Inicia a aplicação na primeira etapa
+        showStep('step-intro');
+    </script>
+
+</body>
+</html>
+
